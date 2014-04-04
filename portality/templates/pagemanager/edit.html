@@ -6,11 +6,13 @@
 <form action="{{record.data.url}}" method="POST">
 {% endif %}
 
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
-            <a class="brand" href="/">{{ app.config['SERVICE_NAME'] }}</a>
-            <ul class="nav">
+          <div class="collapse navbar-collapse">
+            <div class="navbar-header">
+              <a class="navbar-brand" style="font-size:2em;color:red;" href="/">{{ app.config['SERVICE_NAME'] }}</a>
+            </div>
+            <ul class="nav navbar-nav">
                 <li><a href="{{record.data.url}}">Exit</a></li>
                 {% if app.config['COLLABORATIVE'] and padsavailable %}
                 <li><a href="{{record.data.url}}/sync">Sync</a></li>
@@ -30,15 +32,16 @@
                 {% endwith %}
                 </li>
             </ul>
+          </div>
         </div>
     </div>
-</div>
+
 
 {% if app.config['COLLABORATIVE'] and padsavailable %}
 <style type="text/css">
 #collab_edit{
     padding: 0;
-    margin: 40px 0 0 0';
+    margin: 50px 0 0 0';
     position: absolute;
     top: 0;
     left: 0;
@@ -64,11 +67,11 @@ jQuery(document).ready(function() {
         'border'            : 0,
         'borderStyle'       : 'solid'
     });
-    $('#collab_edit').height( $(window).height() - 44 );
+    $('#collab_edit').height( $(window).height() - 54 );
 });
 </script>
 
-<div id="collab_edit" style="margin-top:40px;"></div>
+<div id="collab_edit" style="margin-top:50px;"></div>
 {% else %}
 
 <script>
@@ -89,7 +92,7 @@ jQuery(document).ready(function() {
 });
 </script>
 
-<textarea class="tinymce" id="form_content" name="content" style="width:100%;height:100%;margin-top:40px;" placeholder="write content here. text, markdown or html will work.">{{record.data.content}}</textarea>
+<textarea class="tinymce" id="form_content" name="content" style="width:100%;height:100%;margin-top:50px;" placeholder="write content here. text, markdown or html will work.">{{record.data.content}}</textarea>
 
 </form>
 

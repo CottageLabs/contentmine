@@ -21,7 +21,7 @@ ELASTIC_SEARCH_DB = "contentmine"
 INITIALISE_INDEX = True # whether or not to try creating the index and required index types on startup
 
 # list of superuser account names
-SUPER_USER = ["test"]
+SUPER_USER = ["test","peter"]
 
 # Can people register publicly? If false, only the superuser can create new accounts
 PUBLIC_REGISTER = False

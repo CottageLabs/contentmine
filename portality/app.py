@@ -14,6 +14,7 @@ import portality.models as models
 from portality.core import app, login_manager
 
 from portality.view.account import blueprint as account
+from portality.view.nav import blueprint as nav
 from portality.view.media import blueprint as media
 from portality.view.query import blueprint as query
 from portality.view.stream import blueprint as stream
@@ -22,6 +23,7 @@ from portality.view.pagemanager import blueprint as pagemanager
 
 
 app.register_blueprint(account, url_prefix='/account')
+app.register_blueprint(nav, url_prefix='/nav')
 app.register_blueprint(media, url_prefix='/media')
 app.register_blueprint(query, url_prefix='/query')
 app.register_blueprint(stream, url_prefix='/stream')
