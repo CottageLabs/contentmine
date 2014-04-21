@@ -183,6 +183,22 @@ def pagemanager(path=''):
     if url == '/': url = '/index'
     if url.endswith('.json'): url = url.replace('.json','')
     rec = models.Pages.pull_by_url(url)
+
+    # check if a wiki page exists for the current end path, even though no record exists
+    if rec is None:
+        try:
+            fl = open(contentdir + "contentMine.wiki/" + url.split('/')[-1] + '.md'
+            p = models.Pages({
+                "url":url,
+                "title":urlend,
+                "content":fl.read()
+            })
+            fl.close()
+            p.save()
+            time.sleep(1)
+            return redirect(url)
+        except:
+            pass
     
     if rec is not None and rec.data.get('editable',False):
         return redirect(url_for('.edit',path=url))

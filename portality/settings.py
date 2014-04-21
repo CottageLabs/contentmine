@@ -113,11 +113,8 @@ COMMENTS = ''
 # HOOK SETTINGS
 
 REPOS = {
-    "portality": {
-        "path": "/opt/portality/src/portality"
-    },
-    "content": {
-        "path": "/opt/portality/src/portality/portality/templates/pagemanager/content"
+    "contentMine.wiki": {
+        "path": "/opt/contentmine/src/contentmine/portality/templates/pagemanager/content/contentMine.wiki"
     }
 }
 
