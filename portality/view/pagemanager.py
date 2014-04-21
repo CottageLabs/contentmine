@@ -244,7 +244,7 @@ def pagemanager(path=''):
                     content = rec.data.get('content',"")
 
             content = markdown.markdown(content)
-            content = re.sub(r'\[\[(.*)\]\]',r'<a href="/\1">\1</a>',content)
+            content = re.sub(r'\[\[(.*?)\]\]',r'<a href="/\1">\1</a>',content)
 
             # if an embedded file url has been provided, embed it in content
             if rec.data.get('embed', False):
