@@ -187,7 +187,7 @@ def pagemanager(path=''):
     # check if a wiki page exists for the current end path, even though no record exists
     if rec is None:
         try:
-            fl = open(contentdir + "contentMine.wiki/" + url.split('/')[-1] + '.md','r')
+            fl = open(contentdir + "/contentMine.wiki/" + url.split('/')[-1] + '.md','r')
             p = models.Pages({
                 "url":url,
                 "title":urlend,
