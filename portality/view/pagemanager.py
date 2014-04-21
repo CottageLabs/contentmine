@@ -189,10 +189,11 @@ def pagemanager(path=''):
         if 1==1: #try:
             urlend = url.split('/')[-1]
             fl = open(contentdir + "/contentMine.wiki/" + urlend + '.md','r')
+            cn = fl.read()
             p = models.Pages({
                 "url":url,
                 "title":urlend,
-                "content":fl.read()
+                "content":cn
             })
             fl.close()
             p.save()
