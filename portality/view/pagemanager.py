@@ -186,7 +186,7 @@ def pagemanager(path=''):
 
     # check if a wiki page exists for the current end path, even though no record exists
     if rec is None:
-        try:
+        if 1==1: #try:
             fl = open(contentdir + "/contentMine.wiki/" + url.split('/')[-1] + '.md','r')
             p = models.Pages({
                 "url":url,
@@ -197,8 +197,8 @@ def pagemanager(path=''):
             p.save()
             time.sleep(1)
             return redirect(url)
-        except:
-            pass
+        #except:
+        #    pass
     
     if rec is not None and rec.data.get('editable',False):
         return redirect(url_for('.edit',path=url))
