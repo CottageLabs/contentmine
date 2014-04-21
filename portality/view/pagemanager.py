@@ -1,7 +1,7 @@
 
 # this runs the Pagemanager endpoint for standard display of web pages
 
-import json, time, requests, markdown, os
+import json, time, requests, markdown, os, re
 
 from flask import Blueprint, request, url_for, abort, make_response, flash
 from flask import render_template, redirect
@@ -186,7 +186,7 @@ def pagemanager(path=''):
 
     # check if a wiki page exists for the current end path, even though no record exists
     if rec is None:
-        if 1==1: #try:
+        try:
             urlend = url.split('/')[-1]
             fl = open(contentdir + "/contentMine.wiki/" + urlend + '.md','r')
             p = models.Pages()
@@ -200,8 +200,8 @@ def pagemanager(path=''):
             p.save()
             time.sleep(1)
             return redirect(url)
-        #except:
-        #    pass
+        except:
+            pass
     
     if rec is not None and rec.data.get('editable',False):
         return redirect(url_for('.edit',path=url))
@@ -231,13 +231,20 @@ def pagemanager(path=''):
         else:
             try:
                 content = render_template(
-                    'pagemanager/content' + url,
+                    'pagemanager/content/contentMine.wiki/' + urlend + '.md',
                     record=rec
                 )
             except:
-                content = rec.data.get('content',"")
+                try:
+                    content = render_template(
+                        'pagemanager/content' + url,
+                        record=rec
+                    )
+                except:
+                    content = rec.data.get('content',"")
 
             content = markdown.markdown(content)
+            content = re.sub(r'[[(.*)]]',r'<a href="/\1">\1</a>',content)
 
             # if an embedded file url has been provided, embed it in content
             if rec.data.get('embed', False):
