@@ -185,7 +185,7 @@ def pagemanager(path=''):
     rec = models.Pages.pull_by_url(url)
 
     # check if a wiki page exists for the current end path, even though no record exists
-    if url.startswith('/wiki'):
+    if rec is None:
         try:
             if url == '/wiki':
                 urlend = 'Home'
