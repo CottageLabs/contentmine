@@ -187,7 +187,10 @@ def pagemanager(path=''):
     # check if a wiki page exists for the current end path, even though no record exists
     if url.startswith('/wiki'):
         try:
-            urlend = url.replace('/wiki','').split('/')[-1].replace(' ','-')
+            if url == '/wiki':
+                urlend = 'Home'
+            else:
+                urlend = url.replace('/wiki','').split('/')[-1].replace(' ','-')
             fl = open(contentdir + "/contentMine.wiki/" + urlend + '.md','r')
             p = models.Pages()
             p.data = {
@@ -231,12 +234,8 @@ def pagemanager(path=''):
             return resp
         else:
             try:
-                if url == '/wiki':
-                    addy = 'Home'
-                else:
-                    addy = urlend
                 content = render_template(
-                    'pagemanager/content/contentMine.wiki/' + addy + '.md',
+                    'pagemanager/content/contentMine.wiki/' + urlend + '.md',
                     record=rec
                 )
             except:
