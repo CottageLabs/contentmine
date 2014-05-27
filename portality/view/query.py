@@ -20,7 +20,7 @@ blueprint = Blueprint('query', __name__)
 @blueprint.route('/<path:path>', methods=['GET','POST'])
 @blueprint.route('/', methods=['GET','POST'])
 @util.jsonp
-def query(path='Pages'):
+def query(path='Pages', qry=False, raw=False):
     pathparts = path.strip('/').split('/')
     subpath = pathparts[0]
     if subpath.lower() in app.config.get('NO_QUERY',[]):
@@ -32,7 +32,7 @@ def query(path='Pages'):
         abort(404)
     
     if len(pathparts) > 1 and pathparts[1] == '_mapping':
-        resp = make_response( json.dumps(klass().query(endpoint='_mapping')) )
+        r = klass().query(endpoint='_mapping')
     elif len(pathparts) == 2 and pathparts[1] not in ['_mapping','_search']:
         if request.method == 'POST':
             abort(401)
@@ -40,13 +40,15 @@ def query(path='Pages'):
             rec = klass().pull(pathparts[1])
             if rec:
                 if not current_user.is_anonymous() or (app.config.get('PUBLIC_ACCESSIBLE_JSON',True) and rec.data.get('visible',True) and rec.data.get('accessible',True)):
-                    resp = make_response( rec.json )
+                    r = rec.data
                 else:
                     abort(401)
             else:
                 abort(404)
     else:
-        if request.method == "POST":
+        if qry:
+            qs = qry
+        elif request.method == "POST":
             if request.json:
                 qs = request.json
             else:
@@ -81,8 +83,12 @@ def query(path='Pages'):
                     qs['query']['bool']['must'] = []
                 qs['query']['bool']['must'] = qs['query']['bool']['must'] + app.config['ANONYMOUS_SEARCH_TERMS'][path.lower()]
 
-        resp = make_response( json.dumps(klass().query(q=qs)) )
+        r = klass().query(q=qs)
 
-    resp.mimetype = "application/json"
-    return resp
+    if raw:
+        return r
+    else:
+        resp = make_response( json.dumps(r) )
+        resp.mimetype = "application/json"
+        return resp
 

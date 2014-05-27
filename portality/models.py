@@ -12,6 +12,16 @@ When using portality in your own flask app, perhaps better to make your own mode
 '''
 
 
+# a typical record object, with no special abilities
+class Fact(DomainObject):
+    __type__ = 'fact'
+
+
+# a typical record object, with no special abilities
+class Catalogue(DomainObject):
+    __type__ = 'catalogue'
+
+
 # an example account object, which requires the further additional imports
 # There is a more complex example below that also requires these imports
 from werkzeug import generate_password_hash, check_password_hash
