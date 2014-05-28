@@ -14,10 +14,14 @@ import portality.util as util
 
 from datetime import datetime
 
+
 blueprint = Blueprint('api', __name__)
 
 
-# return the API instructions
+# TODO: add auth control
+
+
+# return the API instructions --------------------------------------------------
 @blueprint.route('/<path:path>', methods=['GET','POST'])
 @blueprint.route('/', methods=['GET','POST'])
 @util.jsonp
@@ -61,11 +65,19 @@ def api():
     return resp
 
 
-# provide access to the listing of available crawlers
+
+
+# provide access to the listing of available crawlers --------------------------
 @blueprint.route('/crawler/<path:path>', methods=['GET','POST'])
 @blueprint.route('/crawler', methods=['GET','POST'])
 @util.jsonp
 def crawler():
+    # TODO: each crawler should be made available in the crawler folder
+    # each one should be able to report what it does
+    # see the bibserver codebase for something similar
+    # each crawler should then be accessible via /api/crawler/NAME
+    # and should have specified inputs and outputs
+    # should also make an effort to conventionalise the IOs required
     resp = make_response( json.dumps({
         "description": "Will eventually list all the crawlers and explain what they do and how to call them."
     }) )
@@ -73,11 +85,19 @@ def crawler():
     return resp
 
 
-# provide access to the list of available scrapers
+
+
+# provide access to the list of available scrapers -----------------------------
 @blueprint.route('/scraper/<path:path>', methods=['GET','POST'])
 @blueprint.route('/scraper', methods=['GET','POST'])
 @util.jsonp
 def scraper():
+    # TODO: each scraper should be made available in the scraper folder
+    # each one should be able to report what it does
+    # see the bibserver codebase for something similar
+    # each scraper should then be accessible via /api/scraper/NAME
+    # and should have specified inputs and outputs
+    # should also make an effort to conventionalise the IOs required
     resp = make_response( json.dumps({
         "description": "Will eventually list all the scrapers and explain what they do and how to call them."
     }) )
@@ -85,11 +105,19 @@ def scraper():
     return resp
     
     
-# provide access to the list of available visitors
+    
+    
+# provide access to the list of available visitors -----------------------------
 @blueprint.route('/visitor/<path:path>', methods=['GET','POST'])
 @blueprint.route('/visitor', methods=['GET','POST'])
 @util.jsonp
 def visitor():
+    # TODO: each visitor should be made available in the visitor folder
+    # each one should be able to report what it does
+    # see the bibserver codebase for something similar
+    # each visitor should then be accessible via /api/visitor/NAME
+    # and should have specified inputs and outputs
+    # should also make an effort to conventionalise the IOs required
     resp = make_response( json.dumps({
         "description": "Will eventually list all the visitors and explain what they do and how to call them."
     }) )
@@ -97,7 +125,9 @@ def visitor():
     return resp
 
 
-# provide access to catalogue of article metadata
+
+
+# provide access to catalogue of article metadata ------------------------------
 @blueprint.route('/catalogue', methods=['GET','POST'])
 @util.jsonp
 def catalogue():
@@ -106,18 +136,16 @@ def catalogue():
             "README": {
                 "description": "The ContentMine catalogue API. The endpoints listed here are available for their described functions. Append the name of each endpoint to the /api/catalogue/ URL to gain access to each one.",
                 "GET": "Returns this documentation page",
-                "POST": "POST a JSON payload following the bibJSON metadata convention (www.bibjson.org), and it will be saved in the ContentMine"
+                "POST": "POST a JSON payload following the bibJSON metadata convention (www.bibjson.org), and it will be saved in the ContentMine. This action redirects to the saved object, so the location/URL/ID of the object can be known."
             },
             "<identifier>": {
                 "GET": "GET /api/catalogue/SOME_IDENTIFIER will return the identified catalogue entry in (bib)JSON format",
+                "PUT": "PUT to an existing identified catalogue entry at /api/catalogue/SOME_IDENTIFIER will completely overwrite with the provided properly content-typed JSON payload",
                 "POST": "POST to an existing identified catalogue entry at /api/catalogue/SOME_IDENTIFIER will update the entry with the provided key-value pairs. POST should provide a properly content-typed JSON payload."
             },
             "query": {
                 "description": "A query endpoint which gives full access to the power of elasticsearch querying on all of the article metadata stored in the ContentMine catalogue.",
                 "note": "Some examples of how to write queries will be provided, but for now just see the elasticsearch documentation at www.elasticsearch.org"
-            },
-            "daily": {
-                "description": "This is going to provide a listing of all facts discovered so far for the current day."
             }
         }) )
         resp.mimetype = "application/json"
@@ -134,9 +162,12 @@ def catalogue():
         f.save()
         return redirect('/api/catalogue/' + f.id)
 
-@blueprint.route('/catalogue/<ident>', methods=['GET','POST'])
+@blueprint.route('/catalogue/<ident>', methods=['GET','PUT','POST'])
 @util.jsonp
 def cataloguedirect(ident):
+    # TODO: consider allowing PUT/POST of new objects to provided IDs in 
+    # addition to users being able to send them to /catalogue and having an ID
+    # created for them. Do we want people to be able to specify their own IDs?
     try:
         f = models.Catalogue.pull(ident)
     except:
@@ -145,15 +176,22 @@ def cataloguedirect(ident):
         resp = make_response( f.json )
         resp.mimetype = "application/json"
         return resp
-    elif request.method == 'POST':
+    elif request.method in ['PUT','POST']:
+        inp = {}
         if request.json:
-            for k in request.json.keys():
-                f.data[k] = request.json[k]
+            inp = request.json
         else:
             for k, v in request.values.items():
-                f.data[k] = v        
+                inp[k] = v
+        # TODO: strip any control keys that get passed in, 
+        # if they should generally be ignored
+        if request.method == 'PUT':
+            f.data = inp
+        else:
+            for k in inp.keys():
+                f.data[k] = inp[k]
         f.save()
-        return redirect('/api/catalogue/' + ident)
+        return redirect('/api/catalogue/' + ident)    
 
 @blueprint.route('/catalogue/query', methods=['GET','POST'])
 @util.jsonp
@@ -172,12 +210,16 @@ def cataloguequery():
     return query(path='Catalogue',qry=qs)
 
 
-# provide access to retrieved content objects that can and have been stored
+
+
+# provide access to retrieved content objects that can and have been stored ----
 @blueprint.route('/content/<path:path>', methods=['GET','POST'])
 @blueprint.route('/content', methods=['GET','POST'])
 @util.jsonp
 def content():
     if request.method == 'GET':
+        # TODO: this should become a listing of stored content
+        # perhaps with a paging / search facility
         resp = make_response( json.dumps({
             "description": "Will eventually list all the content stored in ContentMine for processing."
         }) )
@@ -185,10 +227,14 @@ def content():
         return resp
         
     elif request.method == 'POST':
+        # TODO: this should save POSTed content to wherever we are saving stuff
+        # probably the saving of stuff should be handled by an archive class
         pass    
     
     
-# provide access to facts
+    
+    
+# provide access to facts ------------------------------------------------------
 @blueprint.route('/fact', methods=['GET','POST'])
 @util.jsonp
 def fact():
@@ -201,6 +247,7 @@ def fact():
             },
             "<identifier>": {
                 "GET": "GET /api/fact/SOME_IDENTIFIER will return the identified fact in JSON format",
+                "PUT": "PUT to an existing identified fact at /api/fact/SOME_IDENTIFIER will completely overwrite the fact with the provided properly content-typed JSON payload",
                 "POST": "POST to an existing fact at /api/fact/SOME_IDENTIFIER will update the fact with the provided key-value pairs. POST should provide a properly content-typed JSON payload."
             },
             "query": {
@@ -228,6 +275,9 @@ def fact():
 @blueprint.route('/fact/<ident>', methods=['GET','POST'])
 @util.jsonp
 def factdirect(ident):
+    # TODO: consider allowing PUT/POST of new objects to provided IDs in 
+    # addition to users being able to send them to /catalogue and having an ID
+    # created for them. Do we want people to be able to specify their own IDs?
     try:
         f = models.Fact.pull(ident)
     except:
@@ -236,15 +286,22 @@ def factdirect(ident):
         resp = make_response( f.json )
         resp.mimetype = "application/json"
         return resp
-    elif request.method == 'POST':
+    elif request.method in ['PUT','POST']:
+        inp = {}
         if request.json:
-            for k in request.json.keys():
-                f.data[k] = request.json[k]
+            inp = request.json
         else:
             for k, v in request.values.items():
-                f.data[k] = v        
+                inp[k] = v
+        # TODO: strip any control keys that get passed in, 
+        # if they should generally be ignored
+        if request.method == 'PUT':
+            f.data = inp
+        else:
+            for k in inp.keys():
+                f.data[k] = inp[k]
         f.save()
-        return redirect('/api/fact/' + ident)
+        return redirect('/api/fact/' + ident)    
 
 @blueprint.route('/fact/query', methods=['GET','POST'])
 @util.jsonp
@@ -265,6 +322,9 @@ def factquery():
 @blueprint.route('/fact/daily', methods=['GET','POST'])
 @util.jsonp
 def factdaily():
+    # TODO: should this accept user-provided queries too? So people can search 
+    # on the daily list? If so, just check the incoming query and build one 
+    # with a MUST that includes the following date-based restriction.
     qry = {
         'query': {
             'query_string': {
@@ -274,14 +334,22 @@ def factdaily():
         },
         'sort': [{"created_date.exact":{"order":"desc"}}]
     }
-    return query(path='Fact',qry=qry)
+    r = query(path='Fact',qry=qry,raw=True)
+    # TODO: decide if any control keys should be removed before displaying facts
+    res = [i['_source'] for i in r.get('hits',{}).get('hits',[])]
+    resp = make_response( json.dumps(res) )
+    resp.mimetype = "application/json"
+    return resp
     
+
+
     
-# list running activities
+# list running activities ------------------------------------------------------
 @blueprint.route('/activity/<path:path>', methods=['GET','POST'])
 @blueprint.route('/activity', methods=['GET','POST'])
 @util.jsonp
 def activity():
+    # TODO: useful stuff here
     resp = make_response( json.dumps({
     }) )
     resp.mimetype = "application/json"
