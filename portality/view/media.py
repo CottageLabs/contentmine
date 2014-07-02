@@ -4,7 +4,7 @@ An auth-controlled access and retrieval mechanism for a media folder
 
 import json, os
 
-from flask import Blueprint, request, url_for, flash, redirect, abort, make_response
+from flask import Blueprint, request, url_for, flash, redirect, abort, make_response, send_from_directory
 from flask import render_template
 from flask.ext.login import current_user
 
@@ -51,10 +51,15 @@ def medias(path=''):
         # NOTE: this is only an alternative for when running in debug mode - it delivers images from media folder successfully
         # otherwise you should set your web server (nginx, apache, whatever) to serve GETs on /media/.*
         loc = mediadir + '/' + path
-        if app.config['DEBUG'] and os.path.isfile(loc):
-            response = make_response(open(loc).read())
-            response.headers["Content-type"] = "image"
-            return response
+        #if app.config['DEBUG'] and os.path.isfile(loc):
+        # nginx /media/(.*) from the active CL website config does not seem to work - 404's all the
+        # media files - so falling back to the most efficient function
+        # for sending files using flask for the moment
+        if os.path.isfile(loc):
+            return send_from_directory(mediadir, path)
+            #response = make_response(open(loc).read())
+            #response.headers["Content-type"] = "image"
+            #return response
         else:
             abort(404)
     
